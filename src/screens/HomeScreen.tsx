@@ -61,7 +61,7 @@ const HomeScreen = (props: Props) => {
       const value = await AsyncStorage.getItem('userData');
       if (value !== null) {
         const data = JSON.parse(value);
-        //setUserData(data);
+        setUserData(data);
         console.log('inside _retrieve func', data);
       }
     } catch (error) {
@@ -101,7 +101,7 @@ const HomeScreen = (props: Props) => {
     const updateTasks = userData.filter((task) => task.taskId !== id);
     console.log(updateTasks);
     setUserData(updateTasks);
-    _storeData('userData', updateTasks);
+    _storeData(updateTasks);
   };
 
   const editItem = (task: string) => {
@@ -116,6 +116,7 @@ const HomeScreen = (props: Props) => {
       el.taskId === item.taskId ? {...el, completed: true} : el,
     );
     setUserData(newMarkers);
+    _storeData(newMarkers);
     console.log(newMarkers);
   };
 
@@ -124,6 +125,7 @@ const HomeScreen = (props: Props) => {
       el.taskId === toUpdate.taskId ? {...el, body: description} : el,
     );
     setUserData(newMarkers);
+    _storeData(newMarkers);
     setDescription('');
     setShowUpdate(false);
   };
