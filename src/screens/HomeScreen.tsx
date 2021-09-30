@@ -11,7 +11,11 @@ import {
   Platform,
 } from 'react-native';
 import {Colors} from '../res/constants/Colors';
-import {getData, clearByKey} from '../utils/AsyncStorageMethods/index';
+import {
+  getData,
+  storeData,
+  clearByKey,
+} from '../utils/AsyncStorageMethods/index';
 import {useNavigation} from '@react-navigation/native';
 import {Button} from 'react-native-elements';
 import {doPost, doPostWithToken} from '../utils/AxiosMethods';
@@ -22,6 +26,7 @@ import FontIsto from 'react-native-vector-icons/Fontisto';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // import {useRoute} from '@react-navigation/native';
 // var axios = require('axios').default;
@@ -35,15 +40,38 @@ const HomeScreen = (props: Props) => {
   const [showUpdate, setShowUpdate] = useState(false);
   const [toUpdate, setToUpdate] = useState();
 
-  // const route = useRoute();
-
   const getDate = new Date();
   const date = getDate.toLocaleDateString('en-US');
-  console.log('Date', date);
 
   const [description, setDescription] = useState('');
   const [userData, setUserData] = useState([]);
   console.log('user Data State', userData);
+
+  const _storeData = async (data) => {
+    try {
+      await AsyncStorage.setItem('userData', JSON.stringify(data));
+    } catch (error) {
+      console.log(error);
+    }
+    _retrieveData();
+  };
+
+  const _retrieveData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('userData');
+      if (value !== null) {
+        const data = JSON.parse(value);
+        //setUserData(data);
+        console.log('inside _retrieve func', data);
+      }
+    } catch (error) {
+      // Error retrieving data
+    }
+  };
+
+  useEffect(() => {
+    _retrieveData();
+  }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -73,6 +101,7 @@ const HomeScreen = (props: Props) => {
     const updateTasks = userData.filter((task) => task.taskId !== id);
     console.log(updateTasks);
     setUserData(updateTasks);
+    _storeData('userData', updateTasks);
   };
 
   const editItem = (task: string) => {
@@ -117,9 +146,10 @@ const HomeScreen = (props: Props) => {
     })
       .then((response) => response.json())
       .then((json) => {
-        console.log(json);
+        // console.log(json);
         const updateData = [...userData, json];
         setUserData(updateData);
+        _storeData(updateData);
       });
   };
   return (
@@ -213,8 +243,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   textInput: {
-    width: '70%',
-    paddingVertical: 40,
+    width: '80%',
+    paddingVertical: 10,
     backgroundColor: Colors.light,
     borderRadius: 20,
     paddingHorizontal: 20,
@@ -222,10 +252,11 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
   textInputContainer: {
+    paddingTop: 20,
     width: '100%',
     backgroundColor: Colors.white,
     borderRadius: 20,
-    //position: 'absolute',
+    position: 'absolute',
     bottom: Platform.OS === 'ios' ? 30 : 30,
     alignSelf: 'center',
     flexDirection: 'row',

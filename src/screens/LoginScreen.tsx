@@ -17,7 +17,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Colors} from '../res/constants/Colors';
 import {doPost} from '../utils/AxiosMethods/index';
 import {storeData, getData} from '../utils/AsyncStorageMethods/index';
-import {Users} from '../res/users';
 
 const loginValidationSchema = yup.object().shape({
   email: yup
@@ -47,12 +46,8 @@ const LoginScreen = (props: Props) => {
   const navigation = useNavigation();
 
   const [users, setUsers] = useState([]);
-  console.log(users);
 
-  type loginResponse = {
-    token: string;
-    data: object;
-  };
+  console.log('Login Screen Users', users);
 
   type credentials = {
     email: string;
@@ -61,24 +56,12 @@ const LoginScreen = (props: Props) => {
 
   useEffect(() => {
     const getUsers = async () => {
-      let users = await AsyncStorage.getItem('users');
-      const staticUser = JSON.parse(users);
+      let usersFromAsync = await AsyncStorage.getItem('users');
+      const staticUser = JSON.parse(usersFromAsync);
       setUsers(staticUser);
     };
     getUsers();
   }, [navigation]);
-
-  // const getUsers = async () => {
-  //   const staticUsers = await getData('users');
-  //   if (staticUsers) {
-  //     setUsers(staticUsers);
-  //   }
-  //   return;
-  // };
-
-  // useEffect(() => {
-  //   getUsers();
-  // }, []);
 
   const Login = async (values: credentials) => {
     const credentials = {
