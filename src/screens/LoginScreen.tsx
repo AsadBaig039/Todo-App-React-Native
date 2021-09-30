@@ -46,9 +46,6 @@ interface User {
 const LoginScreen = (props: Props) => {
   const navigation = useNavigation();
 
-  // const [email, setEmail] = useState(props.email);
-  // const [password, setPassword] = useState(props.password);
-
   const [users, setUsers] = useState([]);
   console.log(users);
 
@@ -102,7 +99,7 @@ const LoginScreen = (props: Props) => {
       });
     }
     if (filterUser.length === 0) {
-      console.warn('User not found');
+      alert('User not found');
     }
     // const response = await doPost('/user/login', credentials);
     // console.log(response);

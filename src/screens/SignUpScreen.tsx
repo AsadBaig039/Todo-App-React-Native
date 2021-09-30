@@ -15,6 +15,9 @@ import {Colors} from '../res/constants/Colors';
 import {doPost} from '../utils/AxiosMethods/index';
 import {Formik} from 'formik';
 import * as yup from 'yup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {storeUsers} from '../utils/AsyncStorageMethods/index';
+import {useNavigation} from '@react-navigation/native';
 
 const loginValidationSchema = yup.object().shape({
   email: yup
@@ -35,7 +38,25 @@ type registerData = {
   password: string;
   age: string;
 };
+
 const SignUpScreen = (props: Props) => {
+  const navigation = useNavigation();
+
+  const [users, setUsers] = useState([]);
+  console.log('Users', users);
+  useEffect(() => {
+    const getUsers = async () => {
+      let usersFromAsync = await AsyncStorage.getItem('users');
+      const staticUser = JSON.parse(usersFromAsync);
+      setUsers(staticUser);
+    };
+    getUsers();
+  }, []);
+
+  const storeNewUser = async (updateUsers) => {
+    await storeUsers('users', updateUsers);
+  };
+
   const register = async (values: registerData) => {
     console.log('register account');
     const user = {
@@ -45,8 +66,11 @@ const SignUpScreen = (props: Props) => {
       age: values.age,
     };
 
-    const response = await doPost('/user/register', user);
-    console.log(response);
+    const updateUsers = [...users, user];
+    setUsers(updateUsers);
+    storeNewUser(updateUsers);
+    // const response = await doPost('/user/register', user);
+    // console.log(response);
   };
 
   return (

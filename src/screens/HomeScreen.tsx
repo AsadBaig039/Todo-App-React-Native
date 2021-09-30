@@ -7,6 +7,8 @@ import {
   StyleSheet,
   TextInput,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {Colors} from '../res/constants/Colors';
 import {getData, clearByKey} from '../utils/AsyncStorageMethods/index';
@@ -21,8 +23,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 
-import {useRoute} from '@react-navigation/native';
-var axios = require('axios').default;
+// import {useRoute} from '@react-navigation/native';
+// var axios = require('axios').default;
 
 interface Props {
   userToken: string;
@@ -30,6 +32,9 @@ interface Props {
 
 const HomeScreen = (props: Props) => {
   const navigation = useNavigation();
+  const [showUpdate, setShowUpdate] = useState(false);
+  const [toUpdate, setToUpdate] = useState();
+
   // const route = useRoute();
 
   const getDate = new Date();
@@ -71,7 +76,27 @@ const HomeScreen = (props: Props) => {
   };
 
   const editItem = (task: string) => {
+    console.log('Task', task);
+    setShowUpdate(true);
     setDescription(task.body);
+    setToUpdate(task);
+  };
+
+  const markCompleted = (item: object) => {
+    let newMarkers = userData.map((el) =>
+      el.taskId === item.taskId ? {...el, completed: true} : el,
+    );
+    setUserData(newMarkers);
+    console.log(newMarkers);
+  };
+
+  const updateTask = () => {
+    let newMarkers = userData.map((el) =>
+      el.taskId === toUpdate.taskId ? {...el, body: description} : el,
+    );
+    setUserData(newMarkers);
+    setDescription('');
+    setShowUpdate(false);
   };
 
   const AddTask = async () => {
@@ -96,49 +121,32 @@ const HomeScreen = (props: Props) => {
         const updateData = [...userData, json];
         setUserData(updateData);
       });
-
-    // let data = {
-    //   description: description,
-    // };
-    // const response = await doPost('/task', data);
-    // console.log('description', response);
-    // var myHeaders = new Headers();
-    // myHeaders.append('Content-Type', 'application/json');
-    // myHeaders.append(
-    //   'Authorization',
-    //   'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDA4Y2MzZTVhYjQ2ZjAwMTdiOGY2NGUiLCJpYXQiOjE2MzI3NjMzOTB9.HeFv7lwlle9ZdskP-VTHYkrKqVtW3wEL4FERAzeU-8I',
-    // );
-    // var raw = JSON.stringify({
-    //   description: description,
-    // });
-    // var requestOptions = {
-    //   method: 'POST',
-    //   headers: myHeaders,
-    //   body: raw,
-    //   redirect: 'follow',
-    // };
-    // fetch('https://api-nodejs-todolist.herokuapp.com/task', requestOptions)
-    //   .then((response) => response.text())
-    //   .then((result) => console.log(result))
-    //   .catch((error) => console.log('error', error));
   };
   return (
-    <SafeAreaView style={styles.container}>
-      {userData?.map((e, index) => {
-        return (
-          <View style={styles.listItemCard} key={index}>
-            <View style={styles.body}>
-              <Text style={styles.descriptionText}>{e.body}</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : null}
+      style={styles.container}
+    >
+      <SafeAreaView style={styles.container}>
+        <ScrollView>
+          {userData?.map((e, index) => {
+            return (
+              <View style={styles.listItemCard} key={index}>
+                <View style={styles.body}>
+                  <Text style={styles.descriptionText}>{e.body}</Text>
 
-              <View style={styles.extraInfo}>
-                <FontIsto name="date" size={20} color={Colors.white} />
-                <Text style={styles.dateText}>{e.createdDate}</Text>
-              </View>
-              <View style={styles.taskComplete}>
-                <View style={styles.completedTag}>
-                  <Text style={styles.completedText}>Completed</Text>
-                </View>
-                {/* <FontAwesome5 name="tasks" size={20} color={Colors.white} />
+                  <View style={styles.extraInfo}>
+                    <FontIsto name="date" size={20} color={Colors.white} />
+                    <Text style={styles.dateText}>{e.createdDate}</Text>
+                  </View>
+                  <View style={styles.taskComplete}>
+                    {e.completed && (
+                      <View style={styles.completedTag}>
+                        <Text style={styles.completedText}>Completed</Text>
+                      </View>
+                    )}
+
+                    {/* <FontAwesome5 name="tasks" size={20} color={Colors.white} />
                 {e.completed ? (
                   <MaterialIcons
                     name="done-outline"
@@ -148,38 +156,53 @@ const HomeScreen = (props: Props) => {
                 ) : (
                   <Entypo name="cross" size={20} color={Colors.white} />
                 )} */}
+                  </View>
+                </View>
+                <View style={styles.edit}>
+                  <TouchableOpacity onPress={() => markCompleted(e)}>
+                    <MaterialIcons name="done" color={Colors.white} size={20} />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => editItem(e)}>
+                    <FontAwesome5 name="edit" color={Colors.white} size={20} />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => deleteItem(e.taskId)}>
+                    <MaterialCommunityIcon
+                      name="delete"
+                      color={Colors.white}
+                      size={20}
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-            <View style={styles.edit}>
-              <TouchableOpacity onPress={() => editItem(e)}>
-                <FontAwesome5 name="edit" color={Colors.white} size={20} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => deleteItem(e.taskId)}>
-                <MaterialCommunityIcon
-                  name="delete"
-                  color={Colors.white}
-                  size={20}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        );
-      })}
-      <View style={styles.textInputContainer}>
-        <TextInput
-          placeholder="Write task here"
-          onChangeText={(text) => setDescription(text)}
-          style={styles.textInput}
-          value={description}
-        />
-        <Button
-          containerStyle={styles.addTaskButton}
-          title="Add Task"
-          titleStyle={styles.addTaskTitle}
-          onPress={() => AddTask()}
-        />
-      </View>
-    </SafeAreaView>
+            );
+          })}
+        </ScrollView>
+
+        <View style={styles.textInputContainer}>
+          <TextInput
+            placeholder="Write task here"
+            onChangeText={(text) => setDescription(text)}
+            style={styles.textInput}
+            value={description}
+          />
+          {showUpdate ? (
+            <Button
+              containerStyle={styles.addTaskButton}
+              title=" Update"
+              titleStyle={styles.addTaskTitle}
+              onPress={() => updateTask()}
+            />
+          ) : (
+            <Button
+              containerStyle={styles.addTaskButton}
+              title="Add Task"
+              titleStyle={styles.addTaskTitle}
+              onPress={() => AddTask()}
+            />
+          )}
+        </View>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -200,13 +223,12 @@ const styles = StyleSheet.create({
   },
   textInputContainer: {
     width: '100%',
-    paddingVertical: 30,
     backgroundColor: Colors.white,
     borderRadius: 20,
-    position: 'absolute',
-    bottom: 20,
+    //position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 30 : 30,
+    alignSelf: 'center',
     flexDirection: 'row',
-    left: 20,
     paddingHorizontal: 10,
   },
   addTaskButton: {
