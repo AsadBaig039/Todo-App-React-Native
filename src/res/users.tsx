@@ -5,6 +5,7 @@ export const Users = [
     password: 'asadbaig',
     age: '22',
     token: 'qwertyuiop',
+    userId: '1',
   },
   {
     name: 'Zille Abbas',
@@ -12,6 +13,7 @@ export const Users = [
     password: 'zilleabbas',
     age: '26',
     token: 'asdfghjkl',
+    userId: '2',
   },
   {
     name: 'Ahmed Khan',
@@ -19,5 +21,6 @@ export const Users = [
     password: 'ahmedkhan',
     age: '26',
     token: 'qwertyuiop',
+    userId: '3',
   },
 ];

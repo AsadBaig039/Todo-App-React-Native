@@ -45,7 +45,17 @@ const HomeScreen = (props: Props) => {
 
   const [description, setDescription] = useState('');
   const [userData, setUserData] = useState([]);
+  const [user, setUser] = useState();
   console.log('user Data State', userData);
+  console.log('logged in user', user);
+
+  useEffect(() => {
+    const storage = async () => {
+      let currentUser = await AsyncStorage.getItem('loggedInUser');
+      setUser(JSON.parse(currentUser));
+    };
+    storage();
+  }, []);
 
   const _storeData = async (data) => {
     try {
@@ -61,6 +71,7 @@ const HomeScreen = (props: Props) => {
       const value = await AsyncStorage.getItem('userData');
       if (value !== null) {
         const data = JSON.parse(value);
+
         setUserData(data);
         console.log('inside _retrieve func', data);
       }
@@ -137,7 +148,7 @@ const HomeScreen = (props: Props) => {
       body: JSON.stringify({
         title: 'Todo',
         body: description,
-        userId: '123321',
+        userId: user.userId,
         createdDate: date,
         completed: false,
         taskId: Math.floor(Math.random() * 10),
@@ -154,6 +165,9 @@ const HomeScreen = (props: Props) => {
         _storeData(updateData);
       });
   };
+
+  const userTasks = userData.filter((task) => task.userId === user.userId);
+  console.log('userTasks', userTasks);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : null}
@@ -161,7 +175,7 @@ const HomeScreen = (props: Props) => {
     >
       <SafeAreaView style={styles.container}>
         <ScrollView>
-          {userData?.map((e, index) => {
+          {userTasks?.map((e, index) => {
             return (
               <View style={styles.listItemCard} key={index}>
                 <View style={styles.body}>
