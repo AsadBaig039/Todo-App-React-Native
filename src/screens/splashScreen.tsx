@@ -14,6 +14,13 @@ const splashScreen = (props: Props) => {
     await storeUsers('users', Users);
   };
 
+  const getUsers = async () => {
+    let usersFromAsync = await AsyncStorage.getItem('users');
+    const staticUser = JSON.parse(usersFromAsync);
+    setUsers(staticUsers);
+    return staticUser;
+  };
+
   useEffect(() => {
     const storage = async () => {
       let token = await AsyncStorage.getItem('userToken');
@@ -31,9 +38,12 @@ const splashScreen = (props: Props) => {
         });
       }
     };
-    staticUsers();
+
     storage();
-  }, [navigation]);
+    if (!users) {
+      staticUsers();
+    }
+  }, []);
 
   return (
     <View style={styles.container}>

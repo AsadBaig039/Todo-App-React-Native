@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Colors} from '../res/constants/Colors';
 import {doPost} from '../utils/AxiosMethods/index';
 import {storeData, getData} from '../utils/AsyncStorageMethods/index';
+import {useIsFocused} from '@react-navigation/native';
 
 const loginValidationSchema = yup.object().shape({
   email: yup
@@ -44,6 +45,7 @@ interface User {
 
 const LoginScreen = (props: Props) => {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
 
   const [users, setUsers] = useState([]);
 
@@ -61,7 +63,7 @@ const LoginScreen = (props: Props) => {
       setUsers(staticUser);
     };
     getUsers();
-  }, [navigation]);
+  }, [isFocused]);
 
   const Login = async (values: credentials) => {
     const credentials = {

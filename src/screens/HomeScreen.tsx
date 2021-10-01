@@ -12,25 +12,15 @@ import {
   Keyboard,
 } from 'react-native';
 import {Colors} from '../res/constants/Colors';
-import {
-  getData,
-  storeData,
-  clearByKey,
-} from '../utils/AsyncStorageMethods/index';
+
 import {useNavigation} from '@react-navigation/native';
 import {Button} from 'react-native-elements';
-import {doPost, doPostWithToken} from '../utils/AxiosMethods';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontIsto from 'react-native-vector-icons/Fontisto';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Entypo from 'react-native-vector-icons/Entypo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// import {useRoute} from '@react-navigation/native';
-// var axios = require('axios').default;
 
 interface Props {
   userToken: string;
@@ -49,8 +39,8 @@ const HomeScreen = (props: Props) => {
   const [description, setDescription] = useState('');
   const [userData, setUserData] = useState([]);
   const [user, setUser] = useState();
-  console.log('user Data State', userData);
-  console.log('logged in user', user);
+  // console.log('user Data State', userData);
+  // console.log('logged in user', user);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -94,7 +84,7 @@ const HomeScreen = (props: Props) => {
         const data = JSON.parse(value);
 
         setUserData(data);
-        console.log('inside _retrieve func', data);
+        // console.log('inside _retrieve func', data);
       }
     } catch (error) {
       // Error retrieving data

@@ -10,13 +10,10 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import {Button, Input} from 'react-native-elements';
 import {Colors} from '../res/constants/Colors';
-import {doPost} from '../utils/AxiosMethods/index';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {storeUsers} from '../utils/AsyncStorageMethods/index';
 import {useNavigation} from '@react-navigation/native';
 
 const loginValidationSchema = yup.object().shape({
@@ -43,7 +40,6 @@ const SignUpScreen = (props: Props) => {
   const navigation = useNavigation();
 
   const [users, setUsers] = useState([]);
-  console.log('Users', users);
   useEffect(() => {
     const getUsers = async () => {
       let usersFromAsync = await AsyncStorage.getItem('users');
@@ -60,6 +56,13 @@ const SignUpScreen = (props: Props) => {
       console.log(error);
     }
   };
+
+  const getUsers = async () => {
+    let usersFromAsync = await AsyncStorage.getItem('users');
+    const staticUser = JSON.parse(usersFromAsync);
+    return staticUser;
+  };
+
   const register = async (values: registerData) => {
     console.log('register account');
     const user = {
@@ -72,11 +75,11 @@ const SignUpScreen = (props: Props) => {
     };
 
     const updateUsers = [...users, user];
-    setUsers(updateUsers);
-    // _updateUsers(updateUsers);
-    // navigation.navigate('Login');
-    // const response = await doPost('/user/register', user);
-    // console.log(response);
+    console.log('update users', updateUsers);
+    await setUsers(updateUsers);
+    await _updateUsers(updateUsers);
+    const getUserToCheck = await getUsers();
+    navigation.navigate('Login');
   };
 
   return (
@@ -116,6 +119,7 @@ const SignUpScreen = (props: Props) => {
               onBlur={handleBlur('email')}
               value={values.email}
               keyboardType="email-address"
+              autoCapitalize="none"
             />
             {errors.email && touched.email && (
               <Text style={styles.errorText}>{errors.email}</Text>
@@ -129,6 +133,7 @@ const SignUpScreen = (props: Props) => {
               onBlur={handleBlur('password')}
               value={values.password}
               secureTextEntry
+              autoCapitalize="none"
             />
             {errors.password && touched.password && (
               <Text style={styles.errorText}>{errors.password}</Text>
