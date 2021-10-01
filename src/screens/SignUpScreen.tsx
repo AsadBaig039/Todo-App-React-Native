@@ -53,15 +53,13 @@ const SignUpScreen = (props: Props) => {
     getUsers();
   }, []);
 
-  const storeNewUser = async () => {
-    await storeUsers('users', users);
-    console.log('users stored in async');
+  const _updateUsers = async (data) => {
+    try {
+      await AsyncStorage.setItem('users', JSON.stringify(data));
+    } catch (error) {
+      console.log(error);
+    }
   };
-
-  useEffect(() => {
-    storeNewUser();
-  }, [users]);
-
   const register = async (values: registerData) => {
     console.log('register account');
     const user = {
@@ -70,11 +68,13 @@ const SignUpScreen = (props: Props) => {
       password: values.password,
       age: values.age,
       token: 'qwertasdfgzxcvb',
+      userId: Math.floor(Math.random() * 100),
     };
 
     const updateUsers = [...users, user];
     setUsers(updateUsers);
-    // storeNewUser(updateUsers);
+    // _updateUsers(updateUsers);
+    // navigation.navigate('Login');
     // const response = await doPost('/user/register', user);
     // console.log(response);
   };

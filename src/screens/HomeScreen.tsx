@@ -9,6 +9,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import {Colors} from '../res/constants/Colors';
 import {
@@ -37,6 +38,8 @@ interface Props {
 
 const HomeScreen = (props: Props) => {
   const navigation = useNavigation();
+  const [keyboardStatus, setKeyboardStatus] = useState(undefined);
+  console.log('keyboard status', keyboardStatus);
   const [showUpdate, setShowUpdate] = useState(false);
   const [toUpdate, setToUpdate] = useState();
 
@@ -48,6 +51,24 @@ const HomeScreen = (props: Props) => {
   const [user, setUser] = useState();
   console.log('user Data State', userData);
   console.log('logged in user', user);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardStatus('on');
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardStatus('off');
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  const keyBoardCaseStyle = {
+    bottom: keyboardStatus === 'on' && Platform.OS === 'ios' ? 90 : 0,
+  };
 
   useEffect(() => {
     const storage = async () => {
@@ -174,7 +195,7 @@ const HomeScreen = (props: Props) => {
       style={styles.container}
     >
       <SafeAreaView style={styles.container}>
-        <ScrollView>
+        <ScrollView style={{paddingHorizontal: 20}}>
           {userTasks?.map((e, index) => {
             return (
               <View style={styles.listItemCard} key={index}>
@@ -224,7 +245,7 @@ const HomeScreen = (props: Props) => {
           })}
         </ScrollView>
 
-        <View style={styles.textInputContainer}>
+        <View style={[styles.textInputContainer, keyBoardCaseStyle]}>
           <TextInput
             placeholder="Write task here"
             onChangeText={(text) => setDescription(text)}
@@ -256,11 +277,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   textInput: {
     width: '80%',
-    paddingVertical: 10,
+    paddingVertical: Platform.OS === 'android' ? 5 : 10,
     backgroundColor: Colors.light,
     borderRadius: 20,
     paddingHorizontal: 20,
@@ -268,15 +289,13 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
   textInputContainer: {
-    paddingTop: 20,
+    paddingTop: 5,
+    paddingHorizontal: 30,
     width: '100%',
     backgroundColor: Colors.white,
     borderRadius: 20,
-    position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 30 : 30,
     alignSelf: 'center',
     flexDirection: 'row',
-    paddingHorizontal: 10,
   },
   addTaskButton: {
     width: 80,
